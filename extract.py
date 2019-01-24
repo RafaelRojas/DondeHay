@@ -1,10 +1,16 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
 import tweepy
 import csv
 import json
-import re
+import argparse, sys, re
+from datetime import datetime
+parser = argparse.ArgumentParser(description='Twitter scrapper to find gas stations')
+parser.add_argument('--hashtags', '-ht', nargs='+', help='the hashtags to look on') 
+parser.add_argument('--keywords', '-kw', nargs='+', help='the keywords to search for')
+parser.add_argument('--version', '-v', action='version', version='%(prog)s verison 1.0')
+
+args = parser.parse_args()
 
 # Twitter API credentials
 
@@ -24,20 +30,19 @@ api = tweepy.API(auth)
 
 maximum_number_of_tweets_to_be_extracted = 300
 
-hashtags = ['DesabastoGDL', 'GasolinaGDL']
+hashtags = parser.parse_args().hashtags
+
+def get_searched_tweets(hashtag):
+    for cursor in  tweepy.Cursor(api.search, q= '"#' + hashtag).items(maximum_number_of_tweets_to_be_extracted):
+        try:
+            with open('tweets' + '.txt', 'a') as the_file:
+                the_file.write(datetime.strftime(cursor.created_at, '%m/%d/%y %H:%M:%S') + str(cursor.text) + '\n')
+            
+        except tweepy.error.TweepError:
+         	    print("Reached Twitter rate limit")
+    return hashtag
+
 
 for hashtag in hashtags:
-	for tweet in tweepy.Cursor(api.search, q='#' + hashtag, rpp=100).items(maximum_number_of_tweets_to_be_extracted):
-		with open('tweets' + '.txt', 'a') as the_file:
-			the_file.write(str(tweet.text.encode('utf-8')) + '\n')
-	print ('Extracted ' + str(maximum_number_of_tweets_to_be_extracted) + ' tweets with hashtag #' + hashtag)
-
-
-def search (search_string):
-	for line in open("tweets.txt"):
-		#if "search_string" in line:
-		#	print (line)
-		if re.search(search_string):
-			print (line)
-search('margarita')
-
+    get_searched_tweets(hashtag)
+    print(hashtag)
