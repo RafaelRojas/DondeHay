@@ -3,7 +3,7 @@
 import tweepy
 import csv
 import json
-import argparse, sys, re
+import argparse, os, re
 from datetime import datetime
 
 
@@ -49,17 +49,8 @@ def get_searched_tweets(hashtag):
 
 def search_keywords(keyword):
     with open('tweets.txt', 'r') as tweets:
-        #readtweets = tweets.read()
         if re.findall(keyword, tweets.read()):
             print(str(tweets.text))
-
-    #for tweet in readtweets:
-    #    re.sub("[a-zA-Z]", "", str(keyword))
-    #    re.sub("[a-zA-Z]", "", str(tweet))      
-    #    if re.search(keyword, tweet):
-    #        print(str(tweet))
-        #finding = re.findall(r'[A-Z][a-z]*', keyword)
-        #print(str(finding))
     return finding
 
 for hashtag in hashtags:
@@ -72,15 +63,13 @@ for keyword in keywords:
         for line in origin_file:
             line = re.findall(r'(.+)'+keyword+'(.+)', line)
             if line:
-               #line = line[0].split('"')[1]
                print(line)
 
-
-
-
-#def search_pattern(findings):
-#    tweets = (hashtag)
-#    print(tweets)
-#    return findings
-
-#search_pattern(findings)
+filename = 'tweets.txt'
+if os.path.exists(filename):
+    try:
+        os.remove(filename)
+    except OSError:
+        print ("Error: %s - %s." % (e.filename,e.strerror))
+else: 
+    print("Sorry, I can not find %s file." % filename)
